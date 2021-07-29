@@ -1,0 +1,1 @@
+javac -d build\classes -cp build\classes src\main\java\org\jsoup\*.java src\main\java\org\jsoup\helper\*.java src\main\java\org\jsoup\internal\*.java src\main\java\org\jsoup\nodes\*.java src\main\java\org\jsoup\parser\*.java src\main\java\org\jsoup\safety\*.java src\main\java\org\jsoup\select\*.java 
