@@ -428,7 +428,7 @@ public class HtmlTreeBuilder extends TreeBuilder {
                 last = true;
                 node = contextElement;
             }
-            String name = node.normalName();
+            String name = node != null ? node.normalName() : "";
             if ("select".equals(name)) {
                 transition(HtmlTreeBuilderState.InSelect);
                 break; // frag
