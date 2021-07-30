@@ -20,12 +20,14 @@
     <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="${javac.debug}" verbose="false"
            source="1.7" target="1.7" classpathref="build.classpath" deprecation="on" encoding="UTF-8"
            includeAntRuntime="false">
+      <exclude name="org/jsoup/examples/**" />
     </javac>
   </target>
   
   <target name="javadoc" depends="compile" description="Generate Javadocs">
     <mkdir dir="${javadoc.dir}"/>
     <javadoc sourcepath="${src.dir}" packagenames="org.jsoup.*" destdir="${javadoc.dir}" classpath="${classes.dir}"
+             excludepackagenames="org.jsoup.examples.*"
              windowtitle="jsoup-jessepav Javadoc" author="true" version="true"/> 
   </target>
   
