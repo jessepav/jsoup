@@ -97,7 +97,7 @@ public class Element extends Node {
 
     @Override
     public Attributes attributes() {
-        if (!hasAttributes())
+        if (attributes == null) // not using hasAttributes, as doesn't clear warning
             attributes = new Attributes();
         return attributes;
     }
@@ -110,7 +110,7 @@ public class Element extends Node {
     private static String searchUpForAttribute(final Element start, final String key) {
         Element el = start;
         while (el != null) {
-            if (el.hasAttributes() && el.attributes.hasKey(key))
+            if (el.attributes != null && el.attributes.hasKey(key))
                 return el.attributes.get(key);
             el = el.parent();
         }
@@ -176,7 +176,7 @@ public class Element extends Node {
     
     /**
      * Test if this element is a block-level element. (E.g. {@code <div> == true} or an inline element
-     * {@code <p> == false}).
+     * {@code <span> == false}).
      * 
      * @return true if block, false if not (and thus inline)
      */
@@ -190,7 +190,7 @@ public class Element extends Node {
      * @return The id attribute, if present, or an empty string if not.
      */
     public String id() {
-        return hasAttributes() ? attributes.getIgnoreCase("id") :"";
+        return attributes != null ? attributes.getIgnoreCase("id") :"";
     }
 
     /**
@@ -316,7 +316,7 @@ public class Element extends Node {
      * TODO - think about pulling this out as a helper as there are other shadow lists (like in Attributes) kept around.
      * @return a list of child elements
      */
-    private List<Element> childElementsList() {
+    List<Element> childElementsList() {
         List<Element> children;
         if (shadowChildrenRef == null || (children = shadowChildrenRef.get()) == null) {
             final int size = childNodes.size();
@@ -830,13 +830,15 @@ public class Element extends Node {
     }
 
     /**
-     * Gets the first element sibling of this element.
+     * Gets the first Element sibling of this element. That may be this element.
      * @return the first sibling that is an element (aka the parent's first element child) 
      */
     public Element firstElementSibling() {
-        // todo: should firstSibling() exclude this?
-        List<Element> siblings = parent().childElementsList();
-        return siblings.size() > 1 ? siblings.get(0) : null;
+        if (parent() != null) {
+            List<Element> siblings = parent().childElementsList();
+            return siblings.size() > 1 ? siblings.get(0) : this;
+        } else
+            return this; // orphan is its own first sibling
     }
     
     /**
@@ -850,12 +852,15 @@ public class Element extends Node {
     }
 
     /**
-     * Gets the last element sibling of this element
+     * Gets the last element sibling of this element. That may be this element.
      * @return the last sibling that is an element (aka the parent's last element child) 
      */
     public Element lastElementSibling() {
-        List<Element> siblings = parent().childElementsList();
-        return siblings.size() > 1 ? siblings.get(siblings.size() - 1) : null;
+        if (parent() != null) {
+            List<Element> siblings = parent().childElementsList();
+            return siblings.size() > 1 ? siblings.get(siblings.size() - 1) : this;
+        } else
+            return this;
     }
 
     private static <E extends Element> int indexInList(Element search, List<E> elements) {
@@ -1136,14 +1141,19 @@ public class Element extends Node {
     }
 
     /**
-     * Gets the combined text of this element and all its children. Whitespace is normalized and trimmed.
-     * <p>
-     * For example, given HTML {@code <p>Hello  <b>there</b> now! </p>}, {@code p.text()} returns {@code "Hello there now!"}
-     *
-     * @return unencoded, normalized text, or empty string if none.
-     * @see #wholeText() if you don't want the text to be normalized.
-     * @see #ownText()
-     * @see #textNodes()
+     Gets the <b>normalized, combined text</b> of this element and all its children. Whitespace is normalized and
+     trimmed.
+     <p>
+     For example, given HTML {@code <p>Hello  <b>there</b> now! </p>}, {@code p.text()} returns {@code "Hello there
+    now!"}
+     <p>
+     If you do not want normalized text, use {@link #wholeText()}. If you want just the text of this node (and not
+     children), use {@link #ownText()}
+
+     @return unencoded, normalized text, or empty string if none.
+     @see #wholeText()
+     @see #ownText()
+     @see #textNodes()
      */
     public String text() {
         final StringBuilder accum = StringUtil.borrowBuilder();
@@ -1200,7 +1210,7 @@ public class Element extends Node {
     }
 
     /**
-     * Gets the text owned by this element only; does not get the combined text of all children.
+     * Gets the (normalized) text owned by this element only; does not get the combined text of all children.
      * <p>
      * For example, given HTML {@code <p>Hello <b>there</b> now!</p>}, {@code p.ownText()} returns {@code "Hello now!"},
      * whereas {@code p.text()} returns {@code "Hello there now!"}.
@@ -1292,7 +1302,7 @@ public class Element extends Node {
 
     /**
      * Get the combined data of this element. Data is e.g. the inside of a {@code script} tag. Note that data is NOT the
-     * text of the element. Use {@link #text()} to get the text that would be visible to a user, and {@link #data()}
+     * text of the element. Use {@link #text()} to get the text that would be visible to a user, and {@code data()}
      * for the contents of scripts, comments, CSS styles, etc.
      *
      * @return the data, or empty string if none
@@ -1368,7 +1378,7 @@ public class Element extends Node {
      */
     // performance sensitive
     public boolean hasClass(String className) {
-        if (!hasAttributes())
+        if (attributes == null)
             return false;
 
         final String classAttr = attributes.getIgnoreCase("class");
@@ -1570,7 +1580,6 @@ public class Element extends Node {
         clone.attributes = attributes != null ? attributes.clone() : null;
         clone.childNodes = new NodeList(clone, childNodes.size());
         clone.childNodes.addAll(childNodes); // the children then get iterated and cloned in Node.clone
-        clone.setBaseUri(baseUri());
 
         return clone;
     }
@@ -1626,7 +1635,7 @@ public class Element extends Node {
     private boolean isInlineable(Document.OutputSettings out) {
         return tag().isInline()
             && !tag().isEmpty()
-            && parent().isBlock()
+            && (parent() == null || parent().isBlock())
             && previousSibling() != null
             && !out.outline();
     }
