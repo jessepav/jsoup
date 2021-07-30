@@ -123,6 +123,14 @@ abstract class Token {
             pendingAttributeValueS = null;
         }
 
+        final boolean hasAttributes() {
+            return attributes != null;
+        }
+
+        final boolean hasAttribute(String key) {
+            return attributes != null && attributes.hasKey(key);
+        }
+
         final void finaliseTag() {
             // finalises for emit
             if (pendingAttributeName != null) {
@@ -139,6 +147,10 @@ abstract class Token {
         /** Lower case */
         final String normalName() { // lower case, used in tree building for working out where in tree it should go
             return normalName;
+        }
+
+        final String toStringName() {
+            return tagName != null ? tagName : "[unset]";
         }
 
         final Tag name(String name) {
@@ -237,10 +249,10 @@ abstract class Token {
 
         @Override
         public String toString() {
-            if (attributes != null && attributes.size() > 0)
-                return "<" + name() + " " + attributes.toString() + ">";
+            if (hasAttributes() && attributes.size() > 0)
+                return "<" + toStringName() + " " + attributes.toString() + ">";
             else
-                return "<" + name() + ">";
+                return "<" + toStringName() + ">";
         }
     }
 
@@ -252,7 +264,7 @@ abstract class Token {
 
         @Override
         public String toString() {
-            return "</" + (tagName != null ? tagName : "(unset)") + ">";
+            return "</" + toStringName() + ">";
         }
     }
 

@@ -356,10 +356,10 @@ public abstract class Node implements Cloneable {
     public Node wrap(String html) {
         Validate.notEmpty(html);
 
-        // Parse context - this if element or parent if element else null
+        // Parse context - parent (because wrapping), this, or null
         Element context =
-            this instanceof Element ? (Element) this :
-                parentNode != null && parentNode instanceof Element ? (Element) parentNode :
+            parentNode != null && parentNode instanceof Element ? (Element) parentNode :
+                this instanceof Element ? (Element) this :
                     null;
         List<Node> wrapChildren = NodeUtils.parser(this).parseFragmentInput(html, context, baseUri());
         Node wrapNode = wrapChildren.get(0);
@@ -546,7 +546,7 @@ public abstract class Node implements Cloneable {
 
     /**
      Get this node's next sibling.
-     @return next sibling, or null if this is the last sibling
+     @return next sibling, or @{code null} if this is the last sibling
      */
     public Node nextSibling() {
         if (parentNode == null)
@@ -562,7 +562,7 @@ public abstract class Node implements Cloneable {
 
     /**
      Get this node's previous sibling.
-     @return the previous sibling, or null if this is the first sibling
+     @return the previous sibling, or @{code null} if this is the first sibling
      */
     public Node previousSibling() {
         if (parentNode == null)
