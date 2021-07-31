@@ -400,7 +400,7 @@ public abstract class Node implements Cloneable {
      * <p>{@code <div>One Two <b>Three</b></div>}</p>
      * and the {@code "Two "} {@link TextNode} being returned.
      *
-     * @return the first child of this node, after the node has been unwrapped. @{code Null} if the node had no children.
+     * @return the first child of this node, after the node has been unwrapped. {@code null} if the node had no children.
      * @see #remove()
      * @see #wrap(String)
      */
@@ -546,7 +546,7 @@ public abstract class Node implements Cloneable {
 
     /**
      Get this node's next sibling.
-     @return next sibling, or @{code null} if this is the last sibling
+     @return next sibling, or {@code null} if this is the last sibling
      */
     public Node nextSibling() {
         if (parentNode == null)
@@ -562,7 +562,7 @@ public abstract class Node implements Cloneable {
 
     /**
      Get this node's previous sibling.
-     @return the previous sibling, or @{code null} if this is the first sibling
+     @return the previous sibling, or {@code null} if this is the first sibling
      */
     public Node previousSibling() {
         if (parentNode == null)
